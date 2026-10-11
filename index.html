@@ -63,6 +63,7 @@ a{color:inherit}
 }
 .topbar button:hover,.topbar button:focus-visible{background:var(--white);color:var(--red);border-color:var(--white)}
 .topbar button svg{width:1.1em;height:1.1em}
+.topbar [hidden]{display:none}
 :focus-visible{outline:3px solid var(--red);outline-offset:3px}
 .topbar :focus-visible{outline-color:var(--white)}
 main{
@@ -237,6 +238,7 @@ body.book-cursor #cursor{display:block}
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
     <span id="music-label">Music: Off</span>
   </button>
+  <button type="button" id="pointer" aria-pressed="true" hidden>Book cursor: On</button>
 </nav>
 
 <main>
@@ -268,7 +270,7 @@ body.book-cursor #cursor{display:block}
       <span class="go">Open the pitch <span aria-hidden="true">&rarr;</span></span>
     </a></li>
     <li><a href="https://mistertlibrary.github.io/marginalia/">
-      <span class="dept">English, Social Studies, and World Languages</span>
+      <span class="dept">ELA, social studies, and world languages</span>
       <span class="title">Marginalia</span>
       <span class="desc">Library-made collaborations for ELA, social studies, and world languages: research, writing, and digital humanities modules geared toward developing transferable, interdisciplinary skills.</span>
       <span class="go">Open the pitch <span aria-hidden="true">&rarr;</span></span>
@@ -306,7 +308,20 @@ body.book-cursor #cursor{display:block}
   var books = [];
   var shelves = [];
 
-  if (fine) body.classList.add('book-cursor');
+  var pointerBtn = document.getElementById('pointer');
+  function setBookCursor(on){
+    body.classList.toggle('book-cursor', on);
+    pointerBtn.setAttribute('aria-pressed', String(on));
+    pointerBtn.textContent = on ? 'Book cursor: On' : 'Book cursor: Off';
+    try { localStorage.setItem('lyceum-book-cursor', on ? 'on' : 'off'); } catch(e){}
+  }
+  if (fine) {
+    var wanted = true;
+    try { wanted = localStorage.getItem('lyceum-book-cursor') !== 'off'; } catch(e){}
+    pointerBtn.hidden = false;
+    setBookCursor(wanted);
+    pointerBtn.addEventListener('click', function(){ setBookCursor(!body.classList.contains('book-cursor')); });
+  }
 
   var mx = -100, my = -100;
   function placeCursor(){ cursor.style.transform = 'translate(' + (mx - 6) + 'px,' + (my - 4) + 'px)'; }
